@@ -51,6 +51,10 @@ pip install opencv-python numpy mediapipe insightface torch torchvision torchaud
 pip install sounddevice vosk whisper playsound pywin32
 ```
 
+```bash
+pip install onnxruntime
+```
+
 ---
 
 ## 🧠 AI Model Download & Placement Guide (IMPORTANT)
