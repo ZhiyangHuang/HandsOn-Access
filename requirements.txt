@@ -1,0 +1,17 @@
+# Requirements for HandsOn-Access
+
+# GUI Framework
+# tkinter (usually comes with Python on Windows)
+
+# Future Dependencies (to be added when implementing full features)
+# insightface  # Face recognition
+# mediapipe    # Facial gesture detection
+# openai-whisper  # Voice recognition
+# vosk         # Alternative voice recognition
+# pyautogui    # Keyboard and mouse control
+# opencv-python  # Computer vision
+# numpy        # Numerical operations
+# Pillow       # Image processing
+
+# Note: Install dependencies as needed
+# For basic GUI testing: Python 3.6+ with tkinter (included on Windows)
