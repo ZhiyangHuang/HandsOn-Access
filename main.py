@@ -3,7 +3,6 @@ HandsOn-Access Main GUI
 Integrates all features including face recognition, voice control, and keyboard control.
 """
 
-import sys
 import tkinter as tk
 from tkinter import ttk, messagebox
 
