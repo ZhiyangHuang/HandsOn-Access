@@ -281,18 +281,44 @@ def mp_callback(result, output_image, timestamp_ms):
     # ✅ 无论成功还是失败，必须释放 busy
     mp_busy = False
 
-options = FaceLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=MODEL_PATH, delegate="GPU"),
-    running_mode=VisionRunningMode.LIVE_STREAM,
-    result_callback=mp_callback,
-    num_faces=1,
-)
+def Mediapipe_Auto_GPU(model_path, callback, num_faces=1):
+    try:
+        options = FaceLandmarkerOptions(
+            base_options=BaseOptions(
+                model_asset_path=model_path,
+                delegate=BaseOptions.Delegate.GPU
+            ),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            result_callback=callback,
+            num_faces=num_faces,
+        )
+        return FaceLandmarker.create_from_options(options)
+    except:
+        options = FaceLandmarkerOptions(
+            base_options=BaseOptions(
+                model_asset_path=model_path,
+                delegate=BaseOptions.Delegate.CPU
+            ),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            result_callback=callback,
+            num_faces=num_faces,
+        )
+        return FaceLandmarker.create_from_options(options)
 
-landmarker = FaceLandmarker.create_from_options(options)
+landmarker = Mediapipe_Auto_GPU(MODEL_PATH, mp_callback)
 
 # ================ 本人验证函数 ================
 def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    a = a / np.linalg.norm(a)
+
+    if b.ndim == 1:
+        b = b / np.linalg.norm(b)
+        return float(np.dot(a, b))
+
+    # b 是 (N, 512)
+    b = b / np.linalg.norm(b, axis=1, keepdims=True)
+    sims = np.dot(b, a)   # (N,)
+    return float(np.max(sims))  # 取最相似的一张
 
 def verify_identity(frame):
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
