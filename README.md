@@ -123,18 +123,6 @@ By default, InsightFace downloads models to:
 C:\Users\<YourUsername>\.insightface\models\
 ```
 
-Example:
-
-```
-C:\Users\ZhiyangHuang\.insightface\models\buffalo_l\
-```
-
-You may also manually place the model inside the project:
-
-```
-Model/buffalo_l/
-```
-
 ---
 
 ### 🔹 Vosk (Command-level Speech Recognition)
