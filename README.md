@@ -232,8 +232,52 @@ HandsOn-Access/
 
 ---
 
-## 📬 Contact
+## 📬 Contact · Feedback · Collaboration
 
-If you have questions or want to contribute, feel free to open an issue on GitHub.
+HandsOn-Access is not a “finished” project.  
+It is an ongoing exploration of accessible human–computer interaction.
+
+The core goal of this project is to support people who **cannot use a keyboard and mouse at the same time**, or who face barriers with traditional input devices, by providing **more natural and flexible ways to interact with computers**.  
+At the same time, we recognize that **a single developer’s perspective is always limited**.
+
+### 🌱 Directions We Hope to Explore Together
+
+- 🧍‍♂️ **More diverse gestures and orientations**  
+  Different users have different physical abilities, motion ranges, and comfort zones.  
+  Future work aims to support a wider variety of **head orientations, facial movements, and subtle posture changes**, instead of relying on a single “standard” gesture.
+
+- 💻 **Cross-platform accessibility**  
+  The current implementation focuses on Windows, but the long-term goal is to gradually explore support for **other platforms such as Linux and macOS**.
+
+- ♿ **Real-world usage feedback**  
+  Which gestures cause fatigue?  
+  Which voice commands feel natural?  
+  Which interactions look good in theory but fail in practice?  
+  These insights can only come from real users and real scenarios.
+
+- 🔌 **Extensible input and interaction methods**  
+  Including, but not limited to:  
+  eye tracking, external switches, hybrid inputs, and multi-modal interaction designs.
+
+### 💬 How You Can Participate
+
+Whether you are:
+
+- a user with accessibility needs  
+- someone interested in accessibility and inclusive design  
+- a developer curious about computer vision, speech recognition, or HCI  
+- or simply someone with an idea that starts with “what if…”
+
+You are very welcome to:
+
+- open an Issue  
+- share usage experiences  
+- propose ideas or improvement plans  
+- participate in discussions or contribute code
+
+Even a small piece of feedback can help make this project **more usable, more inclusive, and more human**.
+
+**Accessibility is not a feature.  
+It’s a responsibility.**
 
 🚀 Enjoy hands-free computing!
