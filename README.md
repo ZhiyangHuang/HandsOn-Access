@@ -97,9 +97,9 @@ C:\Users\<YourUsername>\.cache\whisper\
 
 ### 🔹 InsightFace (Face Recognition)
 
-#### 📥 Official model zoo
+#### 📥 Official model
 
-👉 [https://github.com/deepinsight/insightface/tree/master/model_zoo](https://github.com/deepinsight/insightface/tree/master/model_zoo)
+👉 [https://github.com/deepinsight/insightface/tree/master/model_zoo](https://github.com/deepinsight/insightface/releases)
 
 Recommended model:
 
