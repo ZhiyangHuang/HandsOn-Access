@@ -51,10 +51,16 @@ pip install opencv-python numpy mediapipe insightface torch torchvision torchaud
 pip install sounddevice vosk whisper playsound pywin32
 ```
 
+Running AI models using the CPU.
+
 ```bash
 pip install onnxruntime
 ```
 
+Running AI models using a GPU
+```bash
+pip install onnxruntime-gpu
+```
 ---
 
 ## 🧠 AI Model Download & Placement Guide (IMPORTANT)
