@@ -91,13 +91,7 @@ Whisper models are automatically downloaded to:
 C:\Users\<YourUsername>\.cache\whisper\
 ```
 
-Example:
-
-```
-C:\Users\ZhiyangHuang\.cache\whisper\base.pt
-```
-
-⚠️ This is **normal behavior**. You do NOT need to move these files.
+⚠️ If you want to **download manually**, please move the **.pt** file to the corresponding folder.
 
 ---
 
@@ -179,6 +173,8 @@ Direct download (.task file):
 ```
 Model/face_landmarker.task
 ```
+
+⚠️ If you want to **download manually**, please move the **buffalo_l/.onnx** file to the corresponding folder.
 
 ---
 
