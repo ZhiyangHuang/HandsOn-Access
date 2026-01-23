@@ -8,7 +8,6 @@ from collections import deque
 from insightface.app import FaceAnalysis
 import json
 
-
 # ===================== 参数 =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_PATH = os.path.join(BASE_DIR, "action_record.mp4")
@@ -44,13 +43,31 @@ def mp_callback(result, output_image, timestamp_ms):
     global latest_landmarks
     latest_landmarks = result.face_landmarks[0] if result.face_landmarks else None
 
-options = FaceLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=MODEL_PATH, delegate="GPU"),
-    running_mode=VisionRunningMode.LIVE_STREAM,
-    result_callback=mp_callback,
-    num_faces=1,
-)
-landmarker = FaceLandmarker.create_from_options(options)
+def Mediapipe_Auto_GPU(model_path, callback, num_faces=1):
+    try:
+        options = FaceLandmarkerOptions(
+            base_options=BaseOptions(
+                model_asset_path=model_path,
+                delegate=BaseOptions.Delegate.GPU
+            ),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            result_callback=callback,
+            num_faces=num_faces,
+        )
+        return FaceLandmarker.create_from_options(options)
+    except:
+        options = FaceLandmarkerOptions(
+            base_options=BaseOptions(
+                model_asset_path=model_path,
+                delegate=BaseOptions.Delegate.CPU
+            ),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            result_callback=callback,
+            num_faces=num_faces,
+        )
+        return FaceLandmarker.create_from_options(options)
+
+landmarker = Mediapipe_Auto_GPU(MODEL_PATH, mp_callback)
 
 # ===================== InsightFace =====================
 face_app = FaceAnalysis(name="buffalo_l")
