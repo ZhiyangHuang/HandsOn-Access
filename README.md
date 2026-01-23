@@ -63,6 +63,14 @@ pip install onnxruntime-gpu
 ```
 ---
 
+```bash
+pip install pywin32
+```
+⚠️ If you encounter errors in Python IDLE,
+please install Desktop development with C++ via the Visual Studio Installer to resolve the issue.
+
+---
+
 ## 🧠 AI Model Download & Placement Guide (IMPORTANT)
 
 Some AI models are **auto-downloaded to system cache**, while others **must be manually placed** in the `Model/` directory.
