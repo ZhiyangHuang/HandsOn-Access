@@ -48,7 +48,7 @@ Install required packages:
 
 ```bash
 pip install opencv-python numpy mediapipe insightface torch torchvision torchaudio
-pip install sounddevice vosk whisper playsound pywin32
+pip install sounddevice vosk openai-whisper playsound pywin32
 ```
 
 Running AI models using the CPU.
