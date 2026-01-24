@@ -7,7 +7,7 @@
 
 ## ✨ Project Overview
 
-**HandsOn-Access** integrates multiple AI technologies to enable users to control a computer without using hands:
+**VisionTouch-Access** integrates multiple AI technologies to enable users to control a computer without using hands:
 
 * 👤 **Face recognition** for user identity verification
 * 🙂 **Face & head movement detection** for mouse control
@@ -225,7 +225,7 @@ python main.py
 ## 📂 Recommended Project Structure
 
 ```
-HandsOn-Access/
+VisionTouch-Access/
  ├─ Model/
  │  ├─ Vosk/
  │  ├─ buffalo_l/
@@ -257,7 +257,7 @@ HandsOn-Access/
 
 ## 📬 Contact · Feedback · Collaboration
 
-HandsOn-Access is not a “finished” project.  
+VisionTouch-Access is not a “finished” project.  
 It is an ongoing exploration of accessible human–computer interaction.
 
 The core goal of this project is to support people who **cannot use a keyboard and mouse at the same time**, or who face barriers with traditional input devices, by providing **more natural and flexible ways to interact with computers**.  
