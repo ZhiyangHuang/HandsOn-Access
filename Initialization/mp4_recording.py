@@ -1,17 +1,25 @@
 import os
 import cv2
 import time
+import datetime
 import numpy as np
 import mediapipe as mp
 import math
 from collections import deque
 from insightface.app import FaceAnalysis
 import json
+import hashlib
+import platform
+import uuid
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
 
 # ===================== 参数 =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_PATH = os.path.join(BASE_DIR, "action_record.mp4")
-USER_FACE_PATH = os.path.join(BASE_DIR, "USER_FACE.npy")
+INTERACTION_KEY_PATH = os.path.join(BASE_DIR, "interaction_key.jfhzy")
 TIME_JSON_PATH = os.path.join(BASE_DIR, "action_time.json")
 MODEL_PATH = os.path.join(BASE_DIR, "..", "Model", "face_landmarker.task")
 USER_NAME = "User_001"
@@ -72,6 +80,79 @@ landmarker = Mediapipe_Auto_GPU(MODEL_PATH, mp_callback)
 # ===================== InsightFace =====================
 face_app = FaceAnalysis(name="buffalo_l")
 face_app.prepare(ctx_id=0, det_size=(640, 640))
+
+def extract_frames(video_path, max_frames=10):
+    cap = cv2.VideoCapture(video_path)
+    frames = []
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    step = max(1, total_frames // max_frames)  # 间隔抽帧
+    idx = 0
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        if idx % step == 0:
+            frames.append(frame.copy())
+        idx += 1
+        if len(frames) >= max_frames:
+            break
+    cap.release()
+    return frames
+
+def generate_embeddings(frames):
+    embeddings = []
+    for frame in frames:
+        faces = face_app.get(frame)
+        if faces:
+            embeddings.append(faces[0].embedding)
+    return embeddings
+
+def get_path_salt(file_path: str) -> bytes:
+    real_path = os.path.realpath(file_path).lower()
+    return hashlib.sha256(real_path.encode("utf-8")).digest()
+
+def get_device_salt() -> bytes:
+    info = f"{platform.system()}-{platform.machine()}-{uuid.getnode()}"
+    return hashlib.sha256(info.encode("utf-8")).digest()
+
+def get_time_salt(file_path):
+    if not os.path.exists(file_path):
+        return hashlib.sha256(b"0").digest()
+    create_time = os.path.getctime(file_path)
+    dt = datetime.datetime.fromtimestamp(create_time)
+    minute_bytes = str(dt.minute).encode("utf-8")
+    return hashlib.sha256(minute_bytes).digest()
+
+def derive_env_key(file_path: str) -> bytes:
+    material = (
+        get_path_salt(file_path)
+        + get_device_salt()
+        + get_time_salt(file_path)
+    )
+
+    hkdf = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=b"assistive-face-anti-interference",
+        backend=default_backend()
+    )
+    return hkdf.derive(material)
+
+def save_encrypted_embedding(path: str, embedding: np.ndarray):
+    import io, base64
+    # 转 np.float32
+    key = base64.urlsafe_b64encode(derive_env_key(path))
+    fernet = Fernet(key)
+
+    buffer = io.BytesIO()
+    np.save(buffer, embedding, allow_pickle=False)
+    raw = buffer.getvalue()
+
+    encrypted = fernet.encrypt(raw)
+    with open(path, "wb") as f:
+        f.write(encrypted)
 
 # ===================== 工具函数 =====================
 roll_history = deque(maxlen=5)
@@ -188,15 +269,6 @@ while cap.isOpened() and action_idx < len(ACTIONS):
     landmarker.detect_async(mp_image, timestamp)
     timestamp += 1
 
-    # 先注册用户人脸 embedding
-    if not user_face_saved and latest_landmarks:
-        faces = face_app.get(frame)
-        if faces:
-            user_embedding = faces[0].embedding
-            np.save(USER_FACE_PATH, user_embedding)
-            #print(f"✅ 用户人脸 embedding 已保存为 {USER_FACE_PATH}")
-            user_face_saved = True
-
     if latest_landmarks:
         pts = [(lm.x*w, lm.y*h) for lm in latest_landmarks]
         roll, yaw_ratio, pitch_ratio = compute_head_pose(pts)
@@ -282,5 +354,12 @@ with open(TIME_JSON_PATH,"w") as f:
 #print("✅ 动作录制完成")
 #print("📁 文件列表：")
 #print(" - 视频:", VIDEO_PATH)
-#print(" - 用户人脸 embedding:", USER_FACE_PATH)
+frames = extract_frames(VIDEO_PATH, max_frames=10)
+embeddings_list = generate_embeddings(frames)
+if embeddings_list:
+    embeddings = np.stack(embeddings_list, axis=0).astype(np.float32)
+    save_encrypted_embedding(INTERACTION_KEY_PATH, embeddings)
+    #print(" - 初始化成功", INTERACTION_KEY_PATH)
+#else:
+    #print("⚠️ 初始化失败")
 #print(" - 时间 JSON:", TIME_JSON_PATH)
