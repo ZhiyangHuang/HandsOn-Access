@@ -6,7 +6,7 @@ from tkinter import filedialog, messagebox, ttk
 import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-USER_FACE_FILE = r"Initialization\USER_FACE.npy"
+INTERACTION_KEY_PATH = r"Initialization\interaction_key.jfhzy"
 ACTION_FILE = r"Initialization\action_time.json"
 USER_SETTING_FILE = "user_setting.json"
 
@@ -43,12 +43,19 @@ def run_subprocess(script_name, hide_window=True):
 
     # 把相对路径转成绝对路径
     script_path = os.path.join(BASE_DIR, script_name)
+    script_dir = os.path.dirname(script_path)
+
+    python_exe = sys.executable.replace("pythonw.exe", "python.exe")
 
     proc = subprocess.Popen(
-        [sys.executable, script_path],
-        cwd=BASE_DIR   # ⭐⭐ 核心：强制所有子程序都在 Desktop 运行
+        [python_exe, script_path],
+        cwd=script_dir,
+        creationflags=subprocess.CREATE_NO_WINDOW
+        #creationflags=subprocess.CREATE_NEW_CONSOLE
+        #不显示命令行但是cmd窗口还在
+        #stdout=subprocess.DEVNULL,
+        #stderr=subprocess.DEVNULL
     )
-
     running_processes.append(proc)
     proc.wait()
     running_processes.remove(proc)
@@ -184,8 +191,8 @@ if __name__ == "__main__":
     mouth_end = actions.get("mouth_open", {}).get("end")
 
     # 如果没有用户脸数据 或 mouth_open.end 为 None → 初始模式
-    if not os.path.exists(USER_FACE_FILE) or mouth_end is None:
-        #print("mouth_open 未完成或无 USER_FACE.npy，进入初始模式...")
+    if not os.path.exists(INTERACTION_KEY_PATH) or mouth_end is None:
+        #print("mouth_open 未完成或无 interaction_key.jfhzy，进入初始模式...")
         initial_mode()
     else:
         #print("条件满足，进入 GUI 模式...")
