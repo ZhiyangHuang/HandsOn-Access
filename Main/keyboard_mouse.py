@@ -3,15 +3,22 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import sys
-import os
 import math
 from collections import deque
 import win32api
 import win32con
 import threading
 import time
+import datetime
 from insightface.app import FaceAnalysis
 import json
+import platform
+import uuid
+import hashlib
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 
 # ================== 脚本根目录 ==================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +40,7 @@ with open(USER_SETTING_FILE, "r", encoding="utf-8") as f:
     USER_SETTINGS = json.load(f)
 
 MODEL_PATH = os.path.join(BASE_DIR, "..", "Model", "face_landmarker.task")
-USER_FACE_PATH = os.path.join(BASE_DIR, "..", "Initialization", "USER_FACE.npy")
+INTERACTION_KEY_PATH = os.path.join(BASE_DIR, "..", "Initialization", "interaction_key.jfhzy")
 # ================== 本人校验状态机 ==================
 STATE_NO_FACE = 0
 STATE_VERIFYING = 1
@@ -54,6 +61,49 @@ face_present = False
 
 mp_busy = False
 latest_pts = None
+
+def get_path_salt(file_path: str) -> bytes:
+    real_path = os.path.realpath(file_path).lower()
+    return hashlib.sha256(real_path.encode("utf-8")).digest()
+
+def get_device_salt() -> bytes:
+    info = f"{platform.system()}-{platform.machine()}-{uuid.getnode()}"
+    return hashlib.sha256(info.encode("utf-8")).digest()
+
+def get_time_salt(file_path):
+    if not os.path.exists(file_path):
+        return hashlib.sha256(b"0").digest()
+    create_time = os.path.getctime(file_path)
+    dt = datetime.datetime.fromtimestamp(create_time)
+    minute_bytes = str(dt.minute).encode("utf-8")
+    return hashlib.sha256(minute_bytes).digest()
+
+def derive_env_key(file_path: str) -> bytes:
+    material = (
+        get_path_salt(file_path)
+        + get_device_salt()
+        + get_time_salt(file_path)
+    )
+
+    hkdf = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=b"assistive-face-anti-interference",
+        backend=default_backend()
+    )
+    return hkdf.derive(material)
+
+def load_encrypted_embedding(path: str) -> np.ndarray:
+    import io, base64
+    key = base64.urlsafe_b64encode(derive_env_key(path))
+    fernet = Fernet(key)
+
+    encrypted = open(path, "rb").read()
+    raw_bytes = fernet.decrypt(encrypted)
+
+    buffer = io.BytesIO(raw_bytes)
+    return np.load(buffer, allow_pickle=False)
 
 # ---------------- 全局状态 ----------------
 mouse_state = {
@@ -325,8 +375,17 @@ def verify_identity(frame):
     faces = app.get(img_rgb)
     if len(faces) == 0:
         return False, 0.0
+
     feature = faces[0].normed_embedding
-    face_template = np.load(USER_FACE_PATH, mmap_mode='r')
+
+    try:
+        face_template = load_encrypted_embedding(INTERACTION_KEY_PATH)
+        print("解密后 embedding shape:", face_template.shape, face_template.dtype)
+    except Exception as e:
+        # 非本人
+        print("❌ 解密失败:", e)
+        return False, 0.0
+
     sim = cosine_similarity(feature, face_template)
     return sim > SIM_THRESHOLD, sim
 
@@ -477,7 +536,7 @@ while cap.isOpened():
         with landmarks_lock:  # 🔒
             if face_present:
                 state = STATE_VERIFYING
-                #print("👀 检测到人脸，进入身份验证")
+                print("👀 检测到人脸，进入身份验证")
 
     elif state == STATE_VERIFYING:
         cv2.putText(frame, "STATE: VERIFYING", (20, 40),
@@ -485,10 +544,10 @@ while cap.isOpened():
         ok, sim = verify_identity(frame)
         if ok:
             state = STATE_LOCKED
-            #print(f"🔒 身份确认成功，相似度: {sim:.2f}")
+            print(f"🔒 身份确认成功，相似度: {sim:.2f}")
         else:
             state = STATE_REJECT
-            #print(f"❌ 非本人，相似度: {sim:.2f}")
+            print(f"❌ 非本人，相似度: {sim:.2f}")
 
     elif state == STATE_REJECT:
         cv2.putText(frame, "STATE: REJECT (NOT YOU)", (20, 40),
