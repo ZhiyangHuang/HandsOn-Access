@@ -1,0 +1,83 @@
+# ====================
+# Python bytecode
+# ====================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ====================
+# Virtual environments
+# ====================
+venv/
+env/
+.venv/
+.env/
+
+# ====================
+# IDE / Editor configs
+# ====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ====================
+# OS files
+# ====================
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ====================
+# Logs
+# ====================
+*.log
+
+# ====================
+# Temporary / backup files
+# ====================
+*.tmp
+*.bak
+*.swp
+
+# ====================
+# AI model / data files
+# ====================
+*.npy
+*.task
+*.pickle
+*.pkl
+*.cache
+*.h5
+*.ckpt
+
+# Ignore all models by default but keep Model folder files
+Model/*
+!Model/*.npy
+!Model/*.task
+!Model/*.ckpt
+!Model/*.h5
+
+# ====================
+# Audio / media files
+# ====================
+*.mp3
+*.wav
+*.ogg
+
+# Ignore all audio by default but keep Test\Command_Speech mp3
+Test/Command_Speech/*
+!Test/Command_Speech/*.mp3
+
+# ====================
+# Images
+# ====================
+*.jpg
+*.jpeg
+*.png
+
+# Ignore all images by default but keep Test folder photos
+Test/*
+!Test/*.jpg
+!Test/*.jpeg
+!Test/*.png
