@@ -47,8 +47,8 @@ This project is especially suitable for:
 Install required packages:
 
 ```bash
-pip install opencv-python numpy mediapipe insightface torch torchvision torchaudio
-pip install sounddevice vosk playsound pywin32
+pip install opencv-python numpy mediapipe torch torchvision torchaudio
+pip install sounddevice vosk playsound pywin32 cryptography insightface
 ```
 
 Only Windows
